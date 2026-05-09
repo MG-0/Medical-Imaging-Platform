@@ -1,26 +1,23 @@
-# Dependencies
+# dependencies
 node_modules/
-.venv/
-venv/
-Ai_Services/venv/
+jspm_packages/
 
-# Environment variables
+# env files
 .env
-.env.local
+.env.*
 
-# Datasets
-Tumor_Brain_DataSet/
+# logs
+*.log
 
-# Uploads and generated files
-backend/uploads/
-backend/final_reports/
+# builds
+dist/
+build/
+.next/
+out/
 
-# Python caches
+# python
+venv/
 __pycache__/
-*.pyc
-*.pyo
 
-# IDEs and OS files
-.vscode/
+# system
 .DS_Store
-Thumbs.db
