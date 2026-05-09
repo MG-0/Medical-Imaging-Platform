@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-services
+  template:
+    metadata:
+      labels:
+        app: ai-services
+    spec:
+      containers:
+      - name: ai-services
+        image: graduation-ai-services:latest
+        imagePullPolicy: Never # Uses local image from Docker Desktop
+        ports:
+        - containerPort: 5001
+        volumeMounts:
+        - name: uploads-volume
+          mountPath: /app/backend/uploads
+      volumes:
+      - name: uploads-volume
+        persistentVolumeClaim:
+          claimName: uploads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-services-service
+spec:
+  selector:
+    app: ai-services
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001
+  type: NodePort

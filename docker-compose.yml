@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - uploads_data:/app/uploads
+      - final_reports_data:/app/final_reports
+    networks:
+      - app_network
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - app_network
+    depends_on:
+      - backend
+
+  ai-services:
+    build: 
+      context: ./Ai_Services
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    volumes:
+      - uploads_data:/app/backend/uploads
+    networks:
+      - app_network
+
+volumes:
+  uploads_data:
+  final_reports_data:
+
+networks:
+  app_network:
+    driver: bridge

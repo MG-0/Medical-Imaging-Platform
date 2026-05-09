@@ -21,3 +21,14 @@ __pycache__/
 
 # system
 .DS_Store
+
+# IDE
+.vscode/
+
+# Python
+.venv/
+
+# Large Datasets and Uploads
+Tumor_Brain_DataSet/
+backend/uploads/
+backend/final_reports/

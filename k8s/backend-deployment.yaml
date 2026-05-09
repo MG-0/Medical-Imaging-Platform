@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: graduation-backend:latest
+        imagePullPolicy: Never # Uses local image from Docker Desktop
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PORT
+          value: "5000"
+        - name: MONGO_URI
+          value: "mongodb://gamalgit_db_user:WsYi8ef4ZerGKnlu@ac-6ljgojz-shard-00-00.4wlvu32.mongodb.net:27017,ac-6ljgojz-shard-00-01.4wlvu32.mongodb.net:27017,ac-6ljgojz-shard-00-02.4wlvu32.mongodb.net:27017/graduationProjectData?ssl=true&replicaSet=atlas-tjcmjg-shard-0&authSource=admin&appName=Cluster0"
+        - name: JWT_SECRET_KEY
+          value: "your_jwt_secret_key"
+        volumeMounts:
+        - name: uploads-volume
+          mountPath: /app/uploads
+      volumes:
+      - name: uploads-volume
+        persistentVolumeClaim:
+          claimName: uploads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: NodePort
