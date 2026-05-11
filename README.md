@@ -73,7 +73,18 @@ cd Ai_Services
 
 ## 📸 Screenshots
 
-*(Add screenshots of your Patient Dashboard, Doctor Dashboard, and AI Heatmap here to impress visitors!)*
+*(<img width="1872" height="957" alt="patientDashboard" src="https://github.com/user-attachments/assets/4c08f390-130b-45e8-bd82-6cdc203ee441" />
+<img width="1918" height="957" alt="ErrorPage" src="https://github.com/user-attachments/assets/80bb9ece-4bf0-4efb-a141-d170fd53328f" />
+<img width="962" height="736" alt="responsiveDone" src="https://github.com/user-attachments/assets/cebe1046-5ea8-420f-b8ba-dffc4b1fccfd" />
+<img width="1645" height="917" alt="controlDoctorInHeatmap" src="https://github.com/user-attachments/assets/bcb6ea11-c6dd-41c1-aec9-110f66e8aeae" />
+<img width="1918" height="967" alt="projectSignup" src="https://github.com/user-attachments/assets/94367073-053a-443d-b494-07aac3f57552" />
+<img width="1897" height="942" alt="editReport" src="https://github.com/user-attachments/assets/1ec98d0f-4668-494f-8185-1ec57de1d793" />
+<img width="1917" height="972" alt="projectSignin" src="https://github.com/user-attachments/assets/0988ea36-539e-4d6b-b70e-e9f80d9ed98b" />
+<img width="1192" height="892" alt="Screenshot ProjectGraduation" src="https://github.com/user-attachments/assets/67b1f0e7-9808-4936-9133-a8dbc92943af" />
+<img width="1918" height="952" alt="doctorDashboard" src="https://github.com/user-attachments/assets/ecfc6f3f-b48f-4e7d-9574-72f2e4621433" />
+<img width="1885" height="896" alt="uploadMri" src="https://github.com/user-attachments/assets/4e690818-c826-4331-bce8-a4f10d657be1" />
+<img width="1048" height="858" alt="pdfReport" src="https://github.com/user-attachments/assets/3499cca9-310e-47fa-a146-1be95a01db80" />
+)*
 
 ---
 
