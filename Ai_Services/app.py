@@ -6,13 +6,13 @@ import os
 
 app = Flask(__name__)
 
-# 1. تحميل الموديل
+# 1. Load the model
 MODEL_PATH = "model/brain_tumor_model.h5"
 model = tf.keras.models.load_model(MODEL_PATH)
 
 classes = ['Glioma', 'Meningioma', 'No Tumor', 'Pituitary']
 
-# --- دالة توليد الـ Heatmap (Grad-CAM) ---
+# --- Heatmap generation function (Grad-CAM) ---
 def generate_gradcam(img_array, model, last_conv_layer_name):
     grad_model = tf.keras.models.Model(
         [model.inputs], [model.get_layer(last_conv_layer_name).output, model.output]
@@ -32,7 +32,7 @@ def generate_gradcam(img_array, model, last_conv_layer_name):
     heatmap = tf.maximum(heatmap, 0) / (tf.math.reduce_max(heatmap) + 1e-10)
     return heatmap.numpy()
 
-# --- دالة دمج الـ Heatmap مع الصورة الأصلية وحفظها ---
+# --- Function to overlay Heatmap with original image and save it ---
 def save_heatmap(image_path, heatmap, output_path):
     img = cv2.imread(image_path)
     if img is None:
@@ -59,25 +59,25 @@ def predict():
         if not os.path.exists(full_path):
             return jsonify({"status": "error", "message": f"File not found at {full_path}"})
 
-        # معالجة الصورة للتوقع
+        # Process the image for prediction
         img = cv2.imread(full_path)
         img_res = cv2.resize(img, (224, 224))
         img_array = img_res.reshape(1, 224, 224, 3) / 255.0
         
-        # 1. التوقع
+        # 1. Prediction
         prediction = model.predict(img_array)
         class_index = np.argmax(prediction[0])
         result = classes[class_index]
         confidence = float(np.max(prediction[0])) * 100
 
-        # 2. توليد الـ Heatmap (فقط لو فيه ورم)
+        # 2. Generate Heatmap (only if tumor exists)
         heatmap_url = None
         if result != "No Tumor":
-            # "Conv_1" هو اسم آخر طبقة Convolutional في MobileNetV2
+            # "Conv_1" is the name of the last Convolutional layer in MobileNetV2
             try:
                 heatmap = generate_gradcam(img_array, model, "Conv_1")
                 heatmap_name = "heatmap_" + os.path.basename(full_path)
-                # حفظها في فولدر الـ uploads بتاع الباك إند
+                # Save it in the backend's uploads folder
                 output_path = os.path.join('../backend/uploads', heatmap_name)
                 
                 if save_heatmap(full_path, heatmap, output_path):

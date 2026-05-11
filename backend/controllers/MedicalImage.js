@@ -1,5 +1,5 @@
 const MedicalImage = require("../models/MedicalImage");
-const AIReport = require("../models/AIReport"); // تأكد من استدعاء الموديل فوق
+const AIReport = require("../models/AIReport"); // Ensure the model is required above
 // Upload a medical image for the authenticated patient
 const axios = require("axios");
 
@@ -8,10 +8,10 @@ exports.uploadImage = async (req, res) => {
     if (!req.file)
       return res.status(400).json({ message: "No image uploaded" });
 
-    // 1. حفظ الصورة الأساسية
+    // 1. Save the basic image
     const newImage = new MedicalImage({
       patient: req.user.id,
-      assignedDoctor: req.body.doctorId, // حفظ الطبيب المختار
+      assignedDoctor: req.body.doctorId, // Save the assigned doctor
       imageType: req.body.imageType,
       imagePath: req.file.path,
       status: "Pending",
@@ -19,7 +19,7 @@ exports.uploadImage = async (req, res) => {
     await newImage.save();
 
     try {
-      // 2. طلب التحليل من بايثون
+      // 2. Request analysis from Python
       const aiResponse = await axios.post("http://127.0.0.1:5001/predict", {
         path: req.file.path,
       });
@@ -31,22 +31,22 @@ exports.uploadImage = async (req, res) => {
         diagnosisMsg = "No tumor detected by the preliminary AI analysis. A review by your assigned doctor is still required to confirm this result.";
       }
 
-      // 3. إنشاء تقرير الـ AI وربطه بالصورة (بناءً على الـ Schema الجديدة)
+      // 3. Create AI report and link it to the image (based on the new Schema)
       const newAIReport = new AIReport({
         image: newImage._id,
         tumorDetected: aiResponse.data.result !== "No Tumor",
         confidenceScore: parseFloat(aiResponse.data.confidence),
-        heatmapPath: aiResponse.data.heatmap_url, // المسار اللي راجع من بايثون
+        heatmapPath: aiResponse.data.heatmap_url, // The path returned from Python
         initialDiagnosis: diagnosisMsg,
       });
       await newAIReport.save();
 
-      // 4. تحديث حالة الصورة لـ Analyzed
+      // 4. Update image status to Analyzed
       newImage.status = "Analyzed";
       await newImage.save();
     } catch (aiErr) {
       console.error("AI Server Error:", aiErr.message);
-      // في حالة فشل بايثون، الصورة بتفضل Pending
+      // In case Python fails, the image remains Pending
     }
 
     res.status(201).json({ message: "Success", data: newImage });
@@ -91,7 +91,7 @@ exports.getMyImages = async (req, res) => {
 exports.getAllImages = async (req, res) => {
   try {
     let filter = {};
-    // فلترة الحالات لتظهر فقط للطبيب المعالج (سواء كان حسابه doctor أو admin)
+    // Filter cases to show only for the assigned doctor (whether their account is doctor or admin)
     if (req.user.role === "doctor" || req.user.role === "admin") {
       filter.assignedDoctor = req.user.id;
     }
@@ -121,7 +121,7 @@ exports.getAllImages = async (req, res) => {
 exports.getPendingReviews = async (req, res) => {
   try {
     let filter = { status: "Analyzed" };
-    // فلترة الحالات المعلقة لتظهر فقط للطبيب المعالج
+    // Filter pending cases to show only for the assigned doctor
     if (req.user.role === "doctor" || req.user.role === "admin") {
       filter.assignedDoctor = req.user.id;
     }
@@ -135,7 +135,7 @@ exports.getPendingReviews = async (req, res) => {
   }
 };
 
-// ... الأكواد القديمة (uploadImage, getAllImages)
+// ... Old codes (uploadImage, getAllImages)
 
 exports.getCaseDetails = async (req, res) => {
   try {
@@ -146,7 +146,7 @@ exports.getCaseDetails = async (req, res) => {
     );
     if (!image) return res.status(404).json({ message: "Case not found" });
 
-    // استدعاء موديل الـ AIReport
+    // Require AIReport model
     const AIReport = require("../models/AIReport");
     const aiReport = await AIReport.findOne({ image: id });
 

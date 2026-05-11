@@ -128,7 +128,7 @@ exports.updateUser = async (req, res) => {
     const users = req.body;
     const userIdFromParams = req.params.id;
     const userIdFromToken = req.user.id;
-    // الـ Ownership Check
+    // Ownership Check
     if (userIdFromParams !== userIdFromToken && req.user.role !== "admin") {
       return res
         .status(403)
@@ -160,7 +160,7 @@ exports.deleteUser = async (req, res) => {
   try {
     const userIdFromParams = req.params.id;
     const userIdFromToken = req.user.id;
-    // الـ Ownership Check
+    // Ownership Check
     if (userIdFromParams !== userIdFromToken && req.user.role !== "admin") {
       return res
         .status(403)
@@ -179,7 +179,7 @@ exports.deleteUser = async (req, res) => {
 // Get All Doctors
 exports.getDoctors = async (req, res) => {
   try {
-    // جلب المستخدمين الذين لديهم صلاحية طبيب أو أدمن
+    // Fetch users with doctor or admin roles
     const doctors = await User.find({
       role: { $in: ["doctor", "admin"] },
     }).select("name email _id");
