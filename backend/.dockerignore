@@ -1,7 +1,0 @@
-node_modules
-uploads/*
-final_reports/*
-.env
-.git
-Dockerfile
-.dockerignore
