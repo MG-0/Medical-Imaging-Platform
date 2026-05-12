@@ -75,7 +75,15 @@ export const usePatientCases = () => {
       fetchMyImages(); // refresh
       if (onSuccess) onSuccess();
     } catch (err) {
-      showCustomToast("Upload Failed", err.response?.data?.message || err.message, false);
+      if (err.response?.data?.status === "invalid_image") {
+        showCustomToast(
+          "Invalid MRI Image",
+          "Only Brain MRI scans are supported. Please upload a valid MRI image. CT scans, X-rays, and normal images are not allowed.",
+          false
+        );
+      } else {
+        showCustomToast("Upload Failed", err.response?.data?.message || err.message, false);
+      }
     } finally {
       setUploading(false);
     }

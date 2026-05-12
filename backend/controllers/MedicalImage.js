@@ -24,6 +24,13 @@ exports.uploadImage = async (req, res) => {
         path: req.file.path,
       });
 
+      if (aiResponse.data.status === "invalid_image") {
+        await MedicalImage.findByIdAndDelete(newImage._id);
+        const fs = require("fs");
+        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        return res.status(400).json({ status: "invalid_image", message: "Invalid Image" });
+      }
+
       let diagnosisMsg = aiResponse.data.result;
       if (diagnosisMsg !== "No Tumor") {
         diagnosisMsg = `AI detection indicates potential signs of ${diagnosisMsg}. Please note this is a preliminary analysis and wait for your doctor's final verification.`;
@@ -66,13 +73,31 @@ exports.getMyImages = async (req, res) => {
     const AIReport = require("../models/AIReport");
     const FinalReport = require("../models/FinalReport");
 
+    const imageIds = images.map(img => img._id);
+    const aiReports = await AIReport.find({ image: { $in: imageIds } }).lean();
+    const aiReportMap = {};
+    const aiReportIds = [];
+    
+    aiReports.forEach(ai => {
+      aiReportMap[ai.image.toString()] = ai;
+      aiReportIds.push(ai._id);
+    });
+
+    const finalReports = await FinalReport.find({ aiReport: { $in: aiReportIds } })
+      .populate("doctor", "name")
+      .lean();
+      
+    const finalReportMap = {};
+    finalReports.forEach(fr => {
+      finalReportMap[fr.aiReport.toString()] = fr;
+    });
+
     for (let i = 0; i < images.length; i++) {
-      const ai = await AIReport.findOne({ image: images[i]._id }).lean();
+      const imgIdStr = images[i]._id.toString();
+      const ai = aiReportMap[imgIdStr];
       if (ai) {
         images[i].aiReport = ai;
-        const final = await FinalReport.findOne({ aiReport: ai._id })
-          .populate("doctor", "name")
-          .lean();
+        const final = finalReportMap[ai._id.toString()];
         if (final) {
           images[i].finalReport = final;
         }
@@ -101,12 +126,29 @@ exports.getAllImages = async (req, res) => {
       .lean();
 
     const FinalReport = require("../models/FinalReport");
+    const AS = require("../models/AIReport");
+    const imageIds = images.map(img => img._id);
+    
+    const aiReports = await AS.find({ image: { $in: imageIds } }).lean();
+    const aiReportMap = {};
+    const aiReportIds = [];
+    aiReports.forEach(ai => {
+      aiReportMap[ai.image.toString()] = ai;
+      aiReportIds.push(ai._id);
+    });
+
+    const finalReports = await FinalReport.find({ aiReport: { $in: aiReportIds } }).lean();
+    const finalReportMap = {};
+    finalReports.forEach(fr => {
+      finalReportMap[fr.aiReport.toString()] = fr;
+    });
+
     for (let i = 0; i < images.length; i++) {
       if (images[i].status === "Reviewed") {
-        const AS = require("../models/AIReport");
-        const ai = await AS.findOne({ image: images[i]._id }).lean();
+        const imgIdStr = images[i]._id.toString();
+        const ai = aiReportMap[imgIdStr];
         if (ai) {
-          const final = await FinalReport.findOne({ aiReport: ai._id }).lean();
+          const final = finalReportMap[ai._id.toString()];
           if (final) images[i].finalReport = final;
         }
       }

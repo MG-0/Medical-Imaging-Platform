@@ -54,9 +54,9 @@ const DoctorDashboard = () => {
   };
 
   return (
-    <motion.div {...pageTransitions} className="min-h-screen bg-slate-50 p-6 md:p-10 font-sans">
+    <>
       <Toaster position="top-right" reverseOrder={true} />
-      
+      <motion.div {...pageTransitions} className="min-h-screen bg-slate-50 p-6 md:p-10 font-sans">
       <div className="max-w-7xl mx-auto">
         <DashboardHeader 
           title="Doctor Portal" 
@@ -91,6 +91,7 @@ const DoctorDashboard = () => {
         isSaving={isSaving} onSubmit={handleSubmitEdit}
       />
     </motion.div>
+    </>
   );
 };
 

@@ -6,6 +6,45 @@ import os
 
 app = Flask(__name__)
 
+# --- MRI Validation Heuristic ---
+def is_valid_mri(img):
+    if img is None:
+        return False
+        
+    # 1. Color check (MRI is strictly grayscale)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    saturation = hsv[:, :, 1]
+    mean_saturation = np.mean(saturation)
+    if mean_saturation > 10:  # Any significant color means it's a photo, screenshot, illustration
+        return False
+        
+    # 2. Content check (Reject mostly blank/empty images)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    std_dev = np.std(gray)
+    if std_dev < 15:
+        return False
+        
+    # 3. Background Check
+    # MRI scans typically have a lot of black background (the air around the head).
+    h, w = gray.shape
+    border_pixels = np.concatenate([
+        gray[0:15, :].flatten(),
+        gray[h-15:h, :].flatten(),
+        gray[:, 0:15].flatten(),
+        gray[:, w-15:w].flatten()
+    ])
+    mean_border = np.mean(border_pixels)
+    if mean_border > 70:  # Documents, screenshots, or X-rays with white/bright backgrounds
+        return False
+        
+    # 4. Overall Brightness check
+    mean_brightness = np.mean(gray)
+    if mean_brightness > 140: # If it's extremely bright, it's likely an X-Ray
+        return False
+        
+    return True
+
+
 # 1. Load the model
 MODEL_PATH = "model/brain_tumor_model.h5"
 model = tf.keras.models.load_model(MODEL_PATH)
@@ -61,6 +100,11 @@ def predict():
 
         # Process the image for prediction
         img = cv2.imread(full_path)
+        
+        # Validation Step: Check if it's a valid MRI
+        if not is_valid_mri(img):
+            return jsonify({"status": "invalid_image", "message": "Invalid Image"})
+            
         img_res = cv2.resize(img, (224, 224))
         img_array = img_res.reshape(1, 224, 224, 3) / 255.0
         
