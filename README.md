@@ -62,10 +62,13 @@ npm run dev
 *The API will run on: http://localhost:5000*
 
 ### 3. Start the AI Service
-Ensure you have a Python virtual environment (`.venv`) set up in the root directory with the required libraries installed.
+To set up the AI engine, you must first create a virtual environment and install the required Python dependencies (TensorFlow, OpenCV, Flask, etc.).
 ```bash
 cd Ai_Services
-..\.venv\Scripts\python.exe app.py
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
 ```
 *The AI Engine will listen on: http://127.0.0.1:5001*
 
